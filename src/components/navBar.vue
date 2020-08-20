@@ -38,7 +38,8 @@ import signUpForm from './signUpForm'
     return{
       drawer:true,
       links:[
-        {text:'complaint',router:'/complaint'}
+        {text:'complaint',router:'/complaint'},
+        {text:'records',router:'/records'}
       ]
     }
   }
