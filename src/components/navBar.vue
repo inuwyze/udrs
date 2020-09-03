@@ -11,7 +11,7 @@
     >
 
     <v-row justify="center">
-    <signUpForm/>
+    <signUpForm />
     </v-row>
 
     <v-list>
@@ -36,10 +36,11 @@ import signUpForm from './signUpForm'
     },
   data(){
     return{
-      drawer:true,
+      drawer:false,
       links:[
-        {text:'complaint',router:'/complaint'},
-        {text:'records',router:'/records'}
+        {text:'Complaint',router:'/complaint'},
+        {text:'Records',router:'/records'},
+        {text:'Patients',router:'/patients'},
       ]
     }
   }

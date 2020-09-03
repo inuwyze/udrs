@@ -87,7 +87,8 @@
                         </v-row>
 
                         <v-row>
-                            <v-textarea label="address" 
+                            <v-textarea label="address"
+                            v-model="form.address"
                             height="40"
                             class="mt-9"
                             :rules="addressRule"
@@ -100,7 +101,7 @@
                 <v-btn 
                 :disabled="!isValid"
                 absolute right
-                @click="form.sex='ok'"
+                @click="submit"
                 >
                 {{isValid}}
                 submit</v-btn>
@@ -112,23 +113,24 @@
 
 <script>
 // import {bus} from '../main';
-
+import { db } from '../db'
 export default{
 
 
     props:['helo'],
     data(){
         return{
-
+            profile:[],
             dialog:null,
             sex:['male','female'],
             isValid:true,
             form:{
-            firstName:this.helo,
-            lastName:this.helo,
+            firstName:'',
+            lastName:'',
             dob:null,
             sex:null,
             phoneNumber:'',
+            address:'',
             },
             firstNameRule:[
                 v=>!!v ||'enter first name'
@@ -137,8 +139,8 @@ export default{
             dobRule:[v=> !!v||'date of birth is required'],
             addressRule:[v=> !!v||'address is required'],
             sexRule:[v=> !!v||"patient's sex is required"],
-            phoneRule:[v=> !!v && v.length==10||'10 digit phone number']
-
+            phoneRule:[v=> !!v && v.length==10||'10 digit phone number'],
+           
         }
     },
     computed:{
@@ -148,7 +150,15 @@ export default{
 
     },
  
- 
+ methods:{
+     submit(){
+        this.dialog=false;
+        this.$firestoreRefs.profile.add(this.form);
+     }
+ },
+ firestore: {
+    profile: db.collection('patients'),
+  }
 
 }
 </script>

@@ -3,20 +3,20 @@
 
 <template>
 <v-container>
+  
   <v-row justify="end" justify-sm="center">
-
-<v-col cols="10" md="12" >
+  <v-col cols="10" md="12" >
 
   <v-expansion-panels multiple focusable>
     <v-expansion-panel
-    v-for="record in records"
-    :key="record.patient"
+    v-for="(record,index) in records"
+    :key="index"
     >
-    <v-checkbox @click="show" 
-    :name='record'
+    <v-checkbox 
+    
     class='checkboxes'
     :value="record.complaint"
-    v-model="selected"
+    
     ></v-checkbox>
       <v-expansion-panel-header > 
         <v-row justify="space-between">
@@ -35,22 +35,24 @@
           
         <div class="tiptap-vuetify-editor__content" v-html="record.complaint"/>
         
-  
-
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
   </v-col>
   </v-row>
+  <router-link to="/print">
+
+  <v-btn @click="show">button</v-btn>
+  </router-link>
   </v-container>
 </template>
 <script>
 import {db} from '../db'
 
+
 export default{ 
   
   data:()=>({
-    selected:[],
     records:[]
   }),
    firestore: {
@@ -58,15 +60,22 @@ export default{
   },
   methods:{
     show(){
-      console.log(this.selected)
       
+      this.$store.commit('increment',this.records);
+      alert(this.selected)
     }
-  }
+  },
+  computed: {
+    selected() {
+      return this.$store.state.records
+    }
+  },
+      
 }
 
 </script>
 
-<style >
+<style scoped>
 .checkboxes{
   position: absolute;
   left: -35px;

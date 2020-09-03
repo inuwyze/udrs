@@ -1,40 +1,7 @@
 
 <template>
 <v-container id="cont">
-      <div class="page-footer">
-    I'm The Footer
-  </div>
-    <v-simple-table>
-      <thead>
-      <tr>
-        <td>
-          <!--place holder for the fixed-position header-->
-          <div class="page-header-space"></div>
-        </td>
-      </tr>
-    </thead>
-
-
-    <tbody>
-      <tr>
-        <td>
-            <div>
-              <v-row>
-
-                <v-col cols='12' md='6'>
-              <v-text-field v-model="form.doctor" label='doctor'></v-text-field>
-                </v-col>
-                <v-col cols='12' md='6'>
-              <v-text-field v-model="form.patient" label='patient'></v-text-field>
-                </v-col>
-              
-              </v-row>
-    <!-- Use the component in the right place of the template -->
-    <tiptap-vuetify
-      v-model="content"
-      :extensions="extensions"
-    />
-  </div>
+  <tiptaap/>
   <div id="side-toolbar"  
   @mouseenter="show=true"
   @mouseleave="show=false"
@@ -70,88 +37,34 @@
       </v-card>
   </div>
 
-
-        </td>
-      </tr>
-    </tbody>
-
-    <tfoot>
-      <tr>
-        <td>
-          <!--place holder for the fixed-position footer-->
-          <div class="page-footer-space"></div>
-        </td>
-      </tr>
-    </tfoot>
-    </v-simple-table>
-  
 </v-container>
 </template>
  
 <script>
+import { bus } from '../main'
+import tiptaap from '../components/tiptap_editor'
 // import the component and the necessary extensions
-import { TiptapVuetify, Heading, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from 'tiptap-vuetify'
-import { db} from '../db'
+
+import { db } from '../db'
 import { Timestamp } from '../db'
 export default {
   // specify TiptapVuetify component in "components"
-  components: { TiptapVuetify },
+  components: {tiptaap},
   data: () => ({
     show:true,
     record:null,
     sideBtns:[{func:'add',icon:'mdi-plus'}
     ],
     doc:[],
-    form:{
-      doctor:'dr mundo',
-      patient:'',
-      complaint:'',
-      createdAt: ''
-
-    },
-    // declare extensions you want to use
-    extensions: [
-      History,
-      Blockquote,
-      Link,
-      Underline,
-      Strike,
-      Italic,
-      ListItem,
-      BulletList,
-      OrderedList,
-      [Heading, {
-        options: {
-          levels: [1, 2, 3]
-        }
-      }],
-      Bold,
-      Code,
-      HorizontalRule,
-      Paragraph,
-      HardBreak
-    ],
-    // starting editor's content
-    content: `
-     
-      <h3>Complaints</h3>
-      <hr>
-     <br>
-      <h3>present History</h3>
-      <hr>
-        <br>
-
-      <h3>Prescription</h3>
-      <hr>
-      <br>
-    `
+   form:null
   }),
+
   methods:{
     fnc(f){
       this[f]()
     },
     add(){
-      // on pressing addpops it and then adds update and print button
+      // on pressing add pops it and then adds update and print button
       // since addition u should save changes not create a different record
       this.sideBtns.pop();
       [{func:'print',icon:'mdi-printer'},
@@ -159,17 +72,23 @@ export default {
         this.sideBtns.push(a)
       })
 
-      this.form.complaint=this.content;
+      //ADDS TO DATABASE
+      //copies the content from tiptap editor
+      
+      //Form create Time
       this.form.createdAt=Timestamp.FieldValue.serverTimestamp();
       this.$firestoreRefs.doc.add(this.form).then((docRef)=>{
-        this.record=docRef;
-        alert(this.record)
+        this.record=docRef.id;
+        //gets the doc ref from
       });
     },
+
+
     update(){
-      this.form.complaint=this.content;
+      //UPDATE THE FORM IN DB
+      
       this.form.recentUpdateAt=Timestamp.FieldValue.serverTimestamp();
-      this.$firestoreRefs.doc.doc(this.record.id).update(this.form)
+      this.$firestoreRefs.doc.doc(this.record).update(this.form)
       
       
     },
@@ -178,6 +97,12 @@ export default {
       window.print()
     }
 
+  },
+    created (){
+    bus.$on('getForm', (data) => {
+      this.form = data;
+      console.log(this.form)
+    })
   },
    firestore: {
     doc: db.collection('documents'),
@@ -191,7 +116,7 @@ export default {
 
 
 
-<style>
+<style scoped>
  html::-webkit-scrollbar {
   display: none!important;
 }
@@ -200,7 +125,7 @@ export default {
 
 /* transition */
 .appear-enter-active, .appear-leave-active {
-  transition: all 1s;
+  transition: all 0.5s;
 }
 .appear-enter, .appear-leave-to /* .list-leave-active below version 2.1.8 */ {
   /* opacity: 0; */
@@ -208,9 +133,9 @@ export default {
 }
 #side-toolbar{
   position: fixed;
-
+  /* pointer-events: none; */
   height: 300px;
-  width: 200px;
+  width: 100px;
   bottom:0px;
   right:0;
 }
