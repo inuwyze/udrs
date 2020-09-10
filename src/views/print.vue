@@ -101,7 +101,7 @@ export default {
 
 
 
-<style scoped>
+<style >
 .page {
   border: 1px solid grey;
   margin: 20px 5px;

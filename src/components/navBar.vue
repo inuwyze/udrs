@@ -41,6 +41,7 @@ import signUpForm from './signUpForm'
         {text:'Complaint',router:'/complaint'},
         {text:'Records',router:'/records'},
         {text:'Patients',router:'/patients'},
+        {text:'Calendar',router:'/calendar'},
       ]
     }
   }

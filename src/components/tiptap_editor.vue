@@ -130,7 +130,7 @@ export default {
 
 
 
-<style scoped>
+<style >
  html::-webkit-scrollbar {
   display: none!important;
 }
@@ -193,6 +193,7 @@ tr:hover{
   background: none!important;
 }
 
+
 @media print{
 header,.row{
     display: none!important;
@@ -238,5 +239,7 @@ body{
      box-shadow: none!important;
    }
 }
+
+
 
 </style>

@@ -6,6 +6,7 @@ import complaint from '../views/complaint.vue'
 import print from '../views/print.vue'
 import patients from '../views/patients.vue'
 import profile from '../views/profile.vue'
+import calendar from '../views/calendar.vue'
 
 Vue.use(VueRouter)
 
@@ -37,6 +38,11 @@ Vue.use(VueRouter)
     path: '/profile/:id',
     name: 'profile',
     component:profile
+  },
+  {
+    path: '/calendar',
+    name: 'calendar',
+    component:calendar
   },
   {
     path: '/print',

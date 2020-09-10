@@ -2,6 +2,7 @@
 <template>
 <v-container id="cont">
   <tiptaap/>
+
   <div id="side-toolbar"  
   @mouseenter="show=true"
   @mouseleave="show=false"
