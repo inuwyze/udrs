@@ -1,5 +1,7 @@
 <template>
   <v-row class="fill-height">
+    {{events}}
+    {{eventss}}
     <v-col>
         <v-sheet height="64">
         <v-toolbar flat color="white">
@@ -58,8 +60,10 @@
           @click:more="viewDay"
           @click:date="viewDay"
           @change="getEvents"
+        
           @mousedown:event="startDrag"
           @mousedown:time="startTime"
+          @click:day="startTime"
           @mousemove:time="mouseMove"
           @mouseup:time="endDrag"
           @mouseleave.native="cancelDrag"
@@ -96,14 +100,13 @@
               :color="selectedEvent.color"
               dark
             >
-              <v-btn icon>
-                <v-icon>mdi-pencil</v-icon>
+              <v-btn icon
+              @click="deleteItem(selectedElement.id)">
+                <v-icon>mdi-delete</v-icon>
               </v-btn>
               <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon>mdi-heart</v-icon>
-              </v-btn>
+              
               <v-btn icon>
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
@@ -128,10 +131,11 @@
 </template>
 
 <script>
+
+  import {db} from '../db'
   export default {
     data: () => ({
       value: '',
-      events: [],
       colors: ['#2196F3', '#3F51B5', '#673AB7', '#00BCD4', '#4CAF50', '#FF9800', '#757575'],
       names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
       dragEvent: null,
@@ -147,15 +151,43 @@
         day: 'Day',
         '4day': '4 Days',
       },
+      // event fields
+      name:null,
+      start:null,
+      end:null,
+      details:null,
+      EventType:null,
+      currentlyEditing:null,
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
-      
+      events: [],
+      eventss: [],
+      dialog:false,
+        
     
     }),
+
+
+    firestore:{
+      events:db.collection('events')
+    },
+    mounted(){
+        this.getEvents();
+    },
+
     methods: {
-        click(){
-            alert('double')
+      getEvents(){
+        
+      },
+
+      left(){
+        alert('left')
+      },
+
+
+      click(){
+        alert('double')
         },
       startDrag ({ event, timed }) {
         if (event && timed) {
@@ -177,11 +209,12 @@
             name: `Event #${this.events.length}`,
             color: this.rndElement(this.colors),
             start: this.createStart,
-            end: this.createStart,
+            end: this.createStart+1000000,
             timed: true,
           }
-
-          this.events.push(this.createEvent)
+          //add new event to firestore Events DB
+          this.$firestoreRefs.events.add(this.createEvent);
+          // this.events.push(this.createEvent)
         }
       },
       extendBottom (event) {
@@ -258,32 +291,11 @@
             ? `rgba(${r}, ${g}, ${b}, 0.7)`
             : event.color
       },
-      getEvents ({ start, end }) {
-        const events = []
+      // getEvents ({ start, end }) {
+        
 
-        const min = new Date(`${start.date}T00:00:00`).getTime()
-        const max = new Date(`${end.date}T23:59:59`).getTime()
-        const days = (max - min) / 86400000
-        const eventCount = this.rnd(days, days + 20)
-
-        for (let i = 0; i < eventCount; i++) {
-          const timed = this.rnd(0, 3) !== 0
-          const firstTimestamp = this.rnd(min, max)
-          const secondTimestamp = this.rnd(2, timed ? 8 : 288) * 900000
-          const start = firstTimestamp - (firstTimestamp % 900000)
-          const end = start + secondTimestamp
-
-          events.push({
-            name: this.rndElement(this.names),
-            color: this.rndElement(this.colors),
-            start,
-            end,
-            timed,
-          })
-        }
-
-        this.events = events
-      },
+        
+      // },
       rnd (a, b) {
         return Math.floor((b - a + 1) * Math.random()) + a
       },
