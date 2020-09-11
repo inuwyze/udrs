@@ -59,7 +59,7 @@
           @click:event="showEvent"
           @click:more="viewDay"
           @click:date="viewDay"
-          @change="getEvents"
+          
         
           @mousedown:event="startDrag"
           @mousedown:time="startTime"
@@ -144,7 +144,7 @@
       createStart: null,
       extendOriginal: null,
       focus: '',
-      type: 'month',
+      type: 'week',
       typeToLabel: {
         month: 'Month',
         week: 'Week',
@@ -164,7 +164,7 @@
       events: [],
       eventss: [],
       dialog:false,
-        
+      clk:false
     
     }),
 
@@ -172,12 +172,10 @@
     firestore:{
       events:db.collection('events')
     },
-    mounted(){
-        this.getEvents();
-    },
+   
 
     methods: {
-      getEvents(){
+      updateEventsDB(){
         
       },
 
@@ -190,6 +188,8 @@
         alert('double')
         },
       startDrag ({ event, timed }) {
+        console.log('startDrag')
+        this.clk=true
         if (event && timed) {
           this.dragEvent = event
           this.dragTime = null
@@ -197,6 +197,7 @@
         }
       },
       startTime (tms) {
+        console.log('startTime')
         const mouse = this.toTime(tms)
 
         if (this.dragEvent && this.dragTime === null) {
@@ -218,11 +219,14 @@
         }
       },
       extendBottom (event) {
+        console.log('extendBottom')
         this.createEvent = event
         this.createStart = event.start
         this.extendOriginal = event.end
       },
       mouseMove (tms) {
+        console.log('mouseMove')
+        this.clk=false
         const mouse = this.toTime(tms)
 
         if (this.dragEvent && this.dragTime !== null) {
@@ -245,6 +249,9 @@
         }
       },
       endDrag () {
+        console.log('endDrag')
+        // this.selectedOpen=true
+        console.log(this.selectedOpen)
         this.dragTime = null
         this.dragEvent = null
         this.createEvent = null
@@ -252,6 +259,7 @@
         this.extendOriginal = null
       },
       cancelDrag () {
+        console.log('cancelDrag')
         if (this.createEvent) {
           if (this.extendOriginal) {
             this.createEvent.end = this.extendOriginal
@@ -317,16 +325,16 @@
         this.$refs.calendar.next()
       },
       showEvent ({ nativeEvent, event }) {
+        console.log('showEvent')
+        console.log(this.selectedOpen)
         const open = () => {
           this.selectedEvent = event
           this.selectedElement = nativeEvent.target
           setTimeout(() => this.selectedOpen = true, 10)
         }
 
-        if (this.selectedOpen) {
-          this.selectedOpen = false
-          setTimeout(open, 10)
-        } else {
+        if (this.clk) {
+         
           open()
         }
 
