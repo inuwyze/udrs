@@ -1,8 +1,8 @@
 <template>
   <v-row class="fill-height">
-    {{events}}
-    {{eventss}}
+
     <v-col>
+    {{events}}
         <v-sheet height="64">
         <v-toolbar flat color="white">
           <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
@@ -59,13 +59,17 @@
           @click:event="showEvent"
           @click:more="viewDay"
           @click:date="viewDay"
-          
+          @change="change"
         
           @mousedown:event="startDrag"
           @mousedown:time="startTime"
-          @click:day="startTime"
           @mousemove:time="mouseMove"
           @mouseup:time="endDrag"
+      
+      
+          @mousemove:day="mouseMove"
+          @mousedown:day="startTime"
+          @mouseup:day="endDrag"
           @mouseleave.native="cancelDrag"
         >
           <template #event="{ event, timed, eventSummary }"
@@ -101,7 +105,7 @@
               dark
             >
               <v-btn icon
-              @click="deleteItem(selectedElement.id)">
+              @click="deleteItem()">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
               <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
@@ -112,7 +116,27 @@
               </v-btn>
             </v-toolbar>
             <v-card-text>
-              <span v-html="selectedEvent.details"></span>
+             <v-form
+             v-if="currentlyEditing==selectedEvent.id">
+                <v-text-field
+            v-model="selectedEvent.name"
+            label="name"
+            required
+          ></v-text-field>
+          {{datee}}
+                <v-date-picker
+            v-model="datee"
+            multiple
+            no-title
+            type="date"
+            label="name"
+            required
+          ></v-date-picker>
+             </v-form>
+             <v-form
+             v-else>
+             {{selectedEvent.name}}
+             </v-form>
             </v-card-text>
             <v-card-actions>
               <v-btn
@@ -120,7 +144,23 @@
                 color="secondary"
                 @click="selectedOpen = false"
               >
-                Cancel
+                Close
+              </v-btn>
+              <v-btn
+                text
+                color="secondary"
+                v-if='currentlyEditing!==selectedEvent.id'
+                @click.prevent="editEvent"
+              >
+                edit
+              </v-btn>
+              <v-btn
+                text
+                color="secondary"
+                v-else
+                @click.prevent="saveEdit"
+              >
+                save
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -152,6 +192,7 @@
         '4day': '4 Days',
       },
       // event fields
+      datee:null,
       name:null,
       start:null,
       end:null,
@@ -175,12 +216,17 @@
    
 
     methods: {
-      updateEventsDB(){
-        
+      change(){
+        console.log('change')
       },
 
-      left(){
-        alert('left')
+      deleteItem(){
+        console.log(this.selectedEvent.name)
+        this.$firestoreRefs.events.doc(this.selectedEvent.id).delete()
+        this.selectedOpen=false
+        console.log(this.selectedEvent)
+        // this.selectedEvent=null
+        console.log(this.selectedOpen)
       },
 
 
@@ -189,23 +235,31 @@
         },
       startDrag ({ event, timed }) {
         console.log('startDrag')
+        console.log(event)
+        console.log(timed)
         this.clk=true
-        if (event && timed) {
+        if (event && event.timed) {
+          console.log('event timed')
           this.dragEvent = event
+          this.selectedEvent=event
           this.dragTime = null
           this.extendOriginal = null
         }
       },
       startTime (tms) {
         console.log('startTime')
+        console.log(tms)
         const mouse = this.toTime(tms)
+        console.log(mouse)
 
         if (this.dragEvent && this.dragTime === null) {
           const start = this.dragEvent.start
 
           this.dragTime = mouse - start
         } else {
+          
           this.createStart = this.roundTime(mouse)
+          console.log('ext')
           this.createEvent = {
             name: `Event #${this.events.length}`,
             color: this.rndElement(this.colors),
@@ -213,9 +267,10 @@
             end: this.createStart+1000000,
             timed: true,
           }
-          //add new event to firestore Events DB
-          this.$firestoreRefs.events.add(this.createEvent);
-          // this.events.push(this.createEvent)
+          this.events.push(this.createEvent)
+          // this.$firestoreRefs.events.add(this.createEvent)
+           
+         
         }
       },
       extendBottom (event) {
@@ -243,15 +298,34 @@
           const mouseRounded = this.roundTime(mouse, false)
           const min = Math.min(mouseRounded, this.createStart)
           const max = Math.max(mouseRounded, this.createStart)
-
+          console.log('extend mouse move')
+          console.log(this.createEvent)
           this.createEvent.start = min
           this.createEvent.end = max
         }
       },
       endDrag () {
         console.log('endDrag')
-        // this.selectedOpen=true
+        //checking the event object used for each action
         console.log(this.selectedOpen)
+        // used for drag and move event
+        console.log(this.dragEvent)
+        // used for extend bottom of event
+        console.log(this.createEvent);
+      if (this.dragEvent){
+        // dragEvent when event is drag and dropped
+          this.$firestoreRefs.events.doc(this.dragEvent.id).update(this.dragEvent)
+      }
+      else{
+        //createEvent trigger when event created and bottom extended
+        if(this.createEvent.id)
+        {
+          //update doc from eventDB 
+          this.$firestoreRefs.events.doc(this.createEvent.id).update(this.createEvent)
+        }
+        else
+          this.$firestoreRefs.events.add(this.events.pop())
+      }
         this.dragTime = null
         this.dragEvent = null
         this.createEvent = null
@@ -304,6 +378,8 @@
 
         
       // },
+      
+
       rnd (a, b) {
         return Math.floor((b - a + 1) * Math.random()) + a
       },
@@ -325,8 +401,8 @@
         this.$refs.calendar.next()
       },
       showEvent ({ nativeEvent, event }) {
-        console.log('showEvent')
-        console.log(this.selectedOpen)
+        console.log('showEventooooo')
+        console.log(event)
         const open = () => {
           this.selectedEvent = event
           this.selectedElement = nativeEvent.target
@@ -340,6 +416,26 @@
 
         nativeEvent.stopPropagation()
       },
+
+      //showEvent actions
+        editEvent(){
+        this.datee=[]
+        // var currentEventDate=new Date(this.selectedEvent.start)
+      //  var date=currentEventDate.toISOString()
+       var date='2020-09-14'
+       console.log(new Date(date).getTime())
+       console.log(this.selectedEvent.start)
+
+        this.datee.push(date)
+        this.currentlyEditing=this.selectedEvent.id
+      },
+
+      saveEdit(){
+        this.currentlyEditing=null;
+        this.$firestoreRefs.events.doc(this.selectedEvent.id).update(this.selectedEvent)
+      }
+     
+
     },
     
   }

@@ -79,8 +79,8 @@ export default {
       //Form create Time
       this.form.createdAt=Timestamp.FieldValue.serverTimestamp();
       this.$firestoreRefs.doc.add(this.form).then((docRef)=>{
+        //gets the doc ref id 
         this.record=docRef.id;
-        //gets the doc ref from
       });
     },
 
