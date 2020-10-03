@@ -1,74 +1,71 @@
 <template>
+    
     <v-dialog
     v-model="dialog"
-    max-width="800px"
+    max-width="550px"
     >
         <template v-slot:activator='{on}'>
-            <v-btn text v-on="on" >
-                add new patient
+            
+            <v-btn 
+            class="secondary" 
+            v-on="on" >
+            
+                <v-icon>mdi-account-plus</v-icon>
+                new patient
             </v-btn>
         </template>
-        <v-card class="pa-4">
-            <v-card-title class='justify-center'>
-                <h2>Sign Up</h2>
+        <v-card 
+        class="lighter">
+            <v-card-title class='justify-center text-h3 lighter--text primary'>
+                Sign Up
             </v-card-title>
             <v-card-text>
                 <v-form 
                 ref="form"
                 v-model="isValid">
                     <v-container>
-                        <v-row>
-                        <v-col
-                        cols="12"
-                        sm="6">
-                        <v-text-field label="First Name"
-                        v-model="form.firstName"
-                        :rules="firstNameRule"
-                        @keyup.enter="$refs.lastName.focus" 
-                        ></v-text-field>
-                        </v-col>
-                        <v-col
-                        cols="12"
-                        sm="6"
-                        >
-                        <v-text-field label="Last Name"
-                        v-model="form.lastName"
-                        :rules="lastNameRule"
-                        ref="lastName"
+                        
+                        <!-- NAME -->
+                        <v-text-field label="Name"
+                        v-model="form.name"
+                        :rules="nameRule"
+                        prepend-icon="mdi-account"
                         @keyup.enter="$refs.phoneNumber.focus" 
                         ></v-text-field>
-                        </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-text-field
-                            v-model="form.phoneNumber"
-                            label="phone number"
-                            type="number"
-                            prepend-icon="mdi-phone"
-                            :rules="phoneRule"
-                            ref="phoneNumber"
-                            @keyup.enter="$refs.dob.focus" 
-                            />
-                        </v-row>
-                        <v-row>
-                            <v-menu>
-                                <template v-slot:activator="{on}">
-                                <v-text-field label="DOB" prepend-icon="mdi-calendar"
-                                v-on="on"
-                                :value="formattedDate"
-                                :rules="dobRule"
-                                ref="dob"
-                                ></v-text-field>
-                                </template>
-                            <v-date-picker 
+
+
+                        <!-- PHONENUMBER -->
+                        <v-text-field
+                        v-model="form.phoneNumber"
+                        label="phone number"
+                        type="number"
+                        prepend-icon="mdi-phone"
+                        :rules="phoneRule"
+                        ref="phoneNumber"
+                        @keyup.enter="$refs.dob.focus" 
+                        />
+                    
+                    
+                        <v-menu>
+                        <template v-slot:activator="{on}">
+                            <v-text-field label="DOB" prepend-icon="mdi-calendar"
+                            v-on="on"
+                            :value="formattedDate"
+                            :rules="dobRule"
+                            ref="dob"
+                            ></v-text-field>
+                        </template>
+                        <v-date-picker 
                             v-model="form.dob"
-                            ></v-date-picker>
-                            </v-menu>
-                        </v-row>
+                        ></v-date-picker>
+                        </v-menu>
+                    
                         
                         
-                        <v-row>
-                            <v-radio-group v-model="form.sex"  
+                            <!-- GENDER -->
+                            <v-radio-group 
+                            v-model="form.sex"  
+                            prepend-icon="mdi-gender-male-female"
                             row
                             :rules="sexRule"
                             class="mt-2"
@@ -84,58 +81,66 @@
                                 </v-radio>
                                 
                             </v-radio-group>
-                        </v-row>
+                        
 
-                        <v-row>
-                            <v-textarea label="address"
+                            <!-- ADDRESS -->
+                            <v-textarea
+                            prepend-icon="mdi-home" 
+                            label="address"
+                            rows="2"
+                            row-height="15"
+                            auto-grow
                             v-model="form.address"
-                            height="40"
-                            class="mt-9"
                             :rules="addressRule"
                             ></v-textarea>
-                        </v-row>
+                        
 
+                        <v-btn 
+                        :disabled="!isValid"
+                        
+                        
+                        @click="submit"
+                        >
+                        submit</v-btn>
                     </v-container>
                 </v-form>
             
-                <v-btn 
-                :disabled="!isValid"
-                absolute right
-                @click="submit"
-                >
-                {{isValid}}
-                submit</v-btn>
-                {{form}}
+                
             </v-card-text>
         </v-card>
+        <v-snackbar
+            v-model="value"
+        >
+            snackbarText
+            <v-btn flat color="primary" @click.native="value = false">Close</v-btn>
+        </v-snackbar>
     </v-dialog>
 </template>
 
 <script>
 // import {bus} from '../main';
-import { db } from '../db'
+import { bus } from '../main';
+import { db } from '../db';
 export default{
 
 
     props:['helo'],
     data(){
         return{
+            value:false,
+            snackbarText:'patient added',
             profile:[],
             dialog:null,
             sex:['male','female'],
             isValid:true,
             form:{
-            firstName:'',
-            lastName:'',
+            name:'',
             dob:null,
             sex:null,
             phoneNumber:'',
             address:'',
             },
-            firstNameRule:[
-                v=>!!v ||'enter first name'
-                ],
-            lastNameRule:[v=> !!v||'last name is required'],
+            nameRule:[v=>!!v ||'enter name'],
             dobRule:[v=> !!v||'date of birth is required'],
             addressRule:[v=> !!v||'address is required'],
             sexRule:[v=> !!v||"patient's sex is required"],
@@ -153,7 +158,10 @@ export default{
  methods:{
      submit(){
         this.dialog=false;
-        this.$firestoreRefs.profile.add(this.form);
+        this.$firestoreRefs.profile.add(this.form).then(()=>{
+            bus.$emit('patientAdded',this.form);
+            this.$refs.form.reset();
+        });
      }
  },
  firestore: {

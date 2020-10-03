@@ -1,13 +1,24 @@
+// need to improve combo box
 <template>
     <div>
-       {{doc}}
+       <!-- {{doc}} -->
             <v-container>
-            <v-row>
+            <v-row
+            
+            >
 
             <v-col
-                class="d-flex flex-column justify-center align-center flex-wrap"
+                class="pa-0 d-flex flex-column justify-center align-center flex-wrap"
+                cols="4"
             >
-                
+                <v-card
+                tile
+                height="100%"
+                width="100%"
+                >
+                 <v-col
+                class="d-flex flex-column justify-center align-center flex-wrap"
+                >
                 <div style="position:relative">
 
                 <v-avatar size="170">
@@ -33,7 +44,7 @@
                     ref="profilePic"
                     @change="uploadPic">
                 </div>
-                     <v-combobox
+                     <!-- <v-combobox
                    
                     v-model="tags"
                     multiple
@@ -41,50 +52,76 @@
                     >
 
                     </v-combobox>
-                    {{tags}}
+                    {{tags}} -->
+                     </v-col>
+                </v-card>
             </v-col>
-            <v-col>
-            <v-row>
-            <!-- BASIC INFO -->
-            <v-col>
-            <div class="text-h7 grey--text">Name</div>
-            {{doc.firstName}} {{doc.lastName}}
-            </v-col>
-            <v-col>
-            <div class="text-h7 grey--text">Gender</div>
-            {{doc.sex}}
-            </v-col>
-            </v-row>
-            <v-row>
-                <!-- age -->
-             <!--dob format needs change Month name  -->
-             <v-col>
-            <div class="text-h7 grey--text">Date of Birth</div>
-            {{doc.dob}} 
-             </v-col>
-             <v-col>
-            <div class="text-h7 grey--text">Contact Number</div>
-            {{doc.phoneNumber}} 
-             </v-col>
-            </v-row>
-            <v-row>
+            <v-col
+            class="pa-0"
+            >
+
+
+
+                <v-card
+                tile
+                height="100%"
+                width="100%"
+                class="pa-5">
+                
+
+                <v-row>
+                <!-- BASIC INFO -->
                 <v-col>
-
-            <div class="text-h7 grey--text">Address</div>
-            {{doc.address}}
+                <div class="text-h7 grey--text">Name</div>
+                {{doc.name}}
                 </v-col>
-            </v-row>
+                <v-col>
+                <div class="text-h7 grey--text">Gender</div>
+                {{doc.sex}}
+                </v-col>
+                </v-row>
+                <v-row>
+                    <!-- age -->
+                <!--dob format needs change Month name  -->
+                <v-col>
+                <div class="text-h7 grey--text">Date of Birth</div>
+                {{doc.dob}} 
+                </v-col>
+                <v-col>
+                <div class="text-h7 grey--text">Contact Number</div>
+                {{doc.phoneNumber}} 
+                </v-col>
+                </v-row>
+                <v-row>
+                    <v-col>
+
+                <div class="text-h7 grey--text">Address</div>
+                {{doc.address}}
+                    </v-col>
+                </v-row>
+                
+                </v-card>
             </v-col>
             </v-row>
 
-            <v-form>
+            <v-row
+            class="mt-3">
+
+                    <v-card
+                    height="100%"
+                    width="100%"
+                    >
+
                 <v-container>
+                    <div
+                v-if="editMode"
+                class="pl-10 pr-10">
                     <v-row>
                         <v-col md="6">
                             
                             <v-text-field
                             label="height (cm)"
-                            v-model.number="height"
+                            v-model.number="doc.height"
                             type="number"
                             />
 
@@ -93,7 +130,7 @@
                         </v-col>
                         <v-col>
                             <v-select
-                            :items="bloodGroup"
+                            :items="bloodGroups"
                             label="Blood Group"
                             >
 
@@ -105,7 +142,7 @@
                             
                             <v-text-field
                             label="weight (kg)"
-                            v-model.number="weight"
+                            v-model.number="doc.weight"
                             type="number"
                             />
 
@@ -114,22 +151,68 @@
                         </v-col>
                         <v-col>
                             <v-select
-                            :items="bloodGroup"
+                            :items="bloodGroups"
                             label="Blood Group"
+                            v-model="doc.bloodGroup"
                             >
 
                             </v-select>
                         </v-col>
+                        {{bloodGroup}}
                     </v-row>
                     <v-row>
                         <v-col>
                             <v-textarea
-                            label="Personal Notes"></v-textarea>
+                            label="Personal Notes"
+                            v-model="doc.notes"></v-textarea>
                         </v-col>
                     </v-row>
+                </div>
+                <div
+                v-else>
+                    <v-row>
+                        <v-col>
+                            <div class="text-h7 grey--text">weight</div>
+                            {{doc.weight}} 
+                        </v-col>
+                        <v-col>
+                            <div class="text-h7 grey--text">Height</div>
+                            {{doc.height}} 
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col>
+                            <div class="text-h7 grey--text">Blood Group</div>
+                            {{doc.bloodGroup}} 
+                        </v-col>
+                    </v-row>
+                     <v-row>
+                        <v-col>
+                            <div class="text-h7 grey--text">Notes</div>
+                            {{doc.notes}}
+                        </v-col>
+                    </v-row>
+                    </div>
                 </v-container>
-            </v-form>
-
+                    </v-card>
+            </v-row>
+            
+           
+            <!-- save button -->
+            <v-btn
+            fixed
+            v-if="editMode"
+            @click="save"
+            >
+                <v-icon>mdi-floppy</v-icon>
+            </v-btn>
+            <v-btn
+            v-else
+            fixed
+            @click="editMode=true"
+            >
+                <v-icon>mdi-pencil</v-icon>
+            </v-btn>
             </v-container>
              <!-- MEDICAL INFO like bldgrp , hght , diabeties etc  -->
        
@@ -143,11 +226,15 @@ import { storage } from '../db'
     export default{
         data(){
             return{
+                editMode:false,
                 id:this.$route.params.id,
-                doc:null,
+                doc:[],
                 tags:[],
                 height:null,
-                bloodGroup:['A+','A-','B+','B-','AB+','AB-','O+','O-']
+                weight:null,
+                bloodGroup:null,
+                notes:null,
+                bloodGroups:['A+','A-','B+','B-','AB+','AB-','O+','O-']
                
             }
         },
@@ -191,8 +278,12 @@ import { storage } from '../db'
                 this.$refs.profilePic.click();
           
             },
+            save(){
+                this.editMode=false;
+                this.$firestoreRefs.doc.update(this.doc);
+            }
         },
-
+        
         firestore(){
             return{
                 doc: db.collection('patients').doc(this.$route.params.id)

@@ -1,9 +1,9 @@
 <template>
-  <v-row class="fill-height">
+  <v-row class="fill-height ml-8 mr-8">
 
     <v-col>
-    {{events}}
-        <v-sheet height="64">
+    
+        <v-sheet height="60">
         <v-toolbar flat color="white">
           <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
             Today
@@ -47,7 +47,7 @@
           </v-menu>
         </v-toolbar>
       </v-sheet>
-      <v-sheet height="600">
+      <v-sheet height="400">
         <v-calendar
           ref="calendar"
           v-model="focus"
@@ -89,7 +89,8 @@
 
 
 
-         <v-menu
+         <v-dialog
+          width="800"
           v-model="selectedOpen"
           :close-on-content-click="false"
           :activator="selectedElement"
@@ -116,6 +117,8 @@
               </v-btn>
             </v-toolbar>
             <v-card-text>
+
+              <!-- event -->
              <v-form
              v-if="currentlyEditing==selectedEvent.id">
                 <v-text-field
@@ -123,26 +126,74 @@
             label="name"
             required
           ></v-text-field>
-          {{datee}}
+
+          <v-textarea
+          label="detail"
+          v-model="detail">
+
+          </v-textarea>
+          
+
+          <!-- event dates and time field -->
+          <v-expansion-panels>
+            <v-expansion-panel>
+            <v-expansion-panel-header>{{dates}}</v-expansion-panel-header>
+            <v-expansion-panel-content>
+                
                 <v-date-picker
-            v-model="datee"
-            multiple
-            no-title
-            type="date"
-            label="name"
-            required
-          ></v-date-picker>
+                  v-model="dates"
+                  multiple
+                  no-title
+                  type="date"
+                  label="name"
+                  required
+                ></v-date-picker>
+            
+            </v-expansion-panel-content>
+            </v-expansion-panel>
+            <v-expansion-panel>
+            <v-expansion-panel-header>{{from}} - {{to}}</v-expansion-panel-header>
+            <v-expansion-panel-content>
+            
+                <v-row>
+                    <v-col cols="6">
+
+                          <v-time-picker 
+                          v-model="from" 
+                          color="green lighten-1"
+                          scrollable
+                          ></v-time-picker>
+                    </v-col>
+                    <v-col cols="6">
+                          <v-time-picker 
+                          v-model="to" 
+                          color="green lighten-1"
+                          scrollable
+                          ></v-time-picker>
+                    </v-col>
+                </v-row>
+            
+            </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+
+
              </v-form>
-             <v-form
+             <v-container
              v-else>
              {{selectedEvent.name}}
-             </v-form>
+             <br>
+             {{selectedEvent.start | converToTime}} - {{selectedEvent.end | converToTime}}
+
+             <br>
+             {{selectedEvent.detail}}
+             </v-container>
             </v-card-text>
             <v-card-actions>
               <v-btn
                 text
                 color="secondary"
-                @click="selectedOpen = false"
+                @click="selectedOpen = false;currentlyEditing=null;"
               >
                 Close
               </v-btn>
@@ -164,7 +215,7 @@
               </v-btn>
             </v-card-actions>
           </v-card>
-        </v-menu>
+        </v-dialog>
       </v-sheet>
     </v-col>
   </v-row>
@@ -192,11 +243,13 @@
         '4day': '4 Days',
       },
       // event fields
-      datee:null,
+      dates:null,
+      from:null,
+      to:null,
       name:null,
+      detail:null,
       start:null,
       end:null,
-      details:null,
       EventType:null,
       currentlyEditing:null,
       selectedEvent: {},
@@ -419,24 +472,77 @@
 
       //showEvent actions
         editEvent(){
-        this.datee=[]
-        // var currentEventDate=new Date(this.selectedEvent.start)
-      //  var date=currentEventDate.toISOString()
-       var date='2020-09-14'
-       console.log(new Date(date).getTime())
-       console.log(this.selectedEvent.start)
+        this.dates=[]
+        
+       
+    
+       var from = new Date(this.selectedEvent.start),
+        month = '' + (from.getMonth() + 1),
+        day = '' + from.getDate(),
+        year = from.getFullYear(),
+        fromHour = from.getHours(),
+        fromMin = ''+from.getMinutes()
 
-        this.datee.push(date)
+       var to = new Date(this.selectedEvent.end),
+        toHour = +to.getHours(),
+        toMin = ''+to.getMinutes()
+        
+    console.log(toMin)
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+    if (fromMin.length < 2) 
+        fromMin = '0' + fromMin;
+    if (toMin.length < 2) 
+        toMin = '0' + toMin;
+
+        
+      this.from=fromHour+':'+fromMin;
+      this.to=toHour+':'+toMin;
+       var date=[year, month, day].join('-');
+       
+    
+
+        this.dates.push(date)
         this.currentlyEditing=this.selectedEvent.id
       },
 
       saveEdit(){
         this.currentlyEditing=null;
-        this.$firestoreRefs.events.doc(this.selectedEvent.id).update(this.selectedEvent)
+        this.$firestoreRefs.events.doc(this.selectedEvent.id).delete();
+        var editEvent=this.selectedEvent;
+        editEvent.detail=this.detail
+        this.dates.forEach((eventDate)=>{
+          editEvent.start=Date.parse(eventDate+' '+this.from);
+          editEvent.end=Date.parse(eventDate+' '+this.to);
+          editEvent.from=this.from;
+          editEvent.to=this.to;
+          
+          
+          console.log(editEvent)
+          this.$firestoreRefs.events.add(editEvent)
+        })
+      this.selectedOpen=false
       }
-     
 
     },
+    filters:{
+      // to display event timing(hh:mm) from timestamp
+      converToTime:function(timestamp){
+        var d=new Date(timestamp),
+        hr=d.getHours(),
+        min=''+d.getMinutes();
+        console.log(hr)
+        console.log(min)
+        if (min.length < 2) 
+        min = '0' + min;
+
+
+        return hr+':'+min
+      }
+    }
     
   }
 </script>

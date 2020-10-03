@@ -13,9 +13,9 @@
     :key="index"
     >
     <v-checkbox 
-    
+    v-model="selected"
     class='checkboxes'
-    :value="record.complaint"
+    :value="record"
     
     ></v-checkbox>
       <v-expansion-panel-header > 
@@ -53,7 +53,8 @@ import {db} from '../db'
 export default{ 
   
   data:()=>({
-    records:[]
+    records:[],
+    selected:[],
   }),
    firestore: {
     records: db.collection('documents'),
@@ -61,15 +62,12 @@ export default{
   methods:{
     show(){
       
-      this.$store.commit('increment',this.records);
-      alert(this.selected)
+      this.$store.commit('increment',this.selected);
+      // alert(this.selected)
+      // console.log(this.$store.state.records)
     }
   },
-  computed: {
-    selected() {
-      return this.$store.state.records
-    }
-  },
+ 
       
 }
 

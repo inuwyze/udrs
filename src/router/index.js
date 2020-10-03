@@ -7,7 +7,7 @@ import print from '../views/print.vue'
 import patients from '../views/patients.vue'
 import profile from '../views/profile.vue'
 import calendar from '../views/calendar.vue'
-
+import firebase from 'firebase'
 Vue.use(VueRouter)
 
   const routes = [
@@ -22,7 +22,10 @@ Vue.use(VueRouter)
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component:records
+    component:records,
+    meta:{
+      requiresAuth:true
+    }
   },
   {
     path: '/complaint',
@@ -51,10 +54,15 @@ Vue.use(VueRouter)
   }
 ]
 
-const router = new VueRouter({
+let router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to,from,next)=>{
+  if (to.name !== 'Home' && !firebase.auth().currentUser) next({ name: 'Home' })
+  else next()
 })
 
 export default router

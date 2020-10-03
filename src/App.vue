@@ -1,8 +1,11 @@
 <template>
 
-  <v-app>
-     <navBar/>
-     <v-main>
+  <v-app 
+  class>
+     <navBar />
+     <v-main
+  
+     class="tertiary ">
   <router-view></router-view>
      </v-main>
      

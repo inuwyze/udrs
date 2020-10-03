@@ -4,23 +4,40 @@
   
   <v-container>
   
-  {{patients}}
+  
     <v-row>
       <v-col 
       cols="6"
-      md="3" 
       v-for="(patient,i) in patients"
       :key="i"
       >
-      <v-card class="text-center ma-2 pa-4">
-       
-       <!-- <router-link :to="'/profile/'+patient.id"> -->
-       <router-link :to="{name: 'profile', params: {id: patient.id}}">
+      <v-card class="text-center ma-2 pa-4"
+      @click="gotoProfile(patient.id)"> 
+      <v-row>
+        <v-col cols="3">
 
-        {{patient.id}}
-       </router-link>
+      <v-avatar
+      tile
+      size="100">
+        <v-img
+        :src="patient.img">
 
-
+        </v-img>
+      </v-avatar>
+      
+        </v-col>
+        <v-col>
+        <!-- <router-link :to="'/profile/'+patient.id"> -->
+        <!-- <router-link :to="{name: 'profile', params: {id: patient.id}}"> -->
+        
+        {{patient.name}}
+        <br>
+        {{patient.dob}}
+        <br>
+        {{patient.phoneNumber}}
+        
+        </v-col>
+      </v-row>
       </v-card>
       </v-col>
     </v-row>
@@ -42,10 +59,14 @@ data:()=>({
   
 }),
 
+methods:{
+  gotoProfile(id){
+    this.$router.push({name: 'profile', params: {id: id}});
 
+  }
+},
 firestore:{
   patients:db.collection('patients')
-
 }
 
 

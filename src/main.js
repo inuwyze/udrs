@@ -6,11 +6,13 @@ import { TiptapVuetifyPlugin } from 'tiptap-vuetify'
 import { firestorePlugin } from 'vuefire'
 import Vuex from 'vuex'
 Vue.use(Vuex)
+import firebase from 'firebase'
 Vue.use(firestorePlugin)
 // don't forget to import CSS styles
 import 'tiptap-vuetify/dist/main.css'
 // Vuetify's CSS styles 
 import 'vuetify/dist/vuetify.min.css'
+import '@mdi/font/css/materialdesignicons.css'
 import vueDebounce from 'vue-debounce'
 Vue.use(vueDebounce)
 Vue.config.productionTip = false
@@ -24,22 +26,29 @@ export const bus=new Vue()
 
 const store = new Vuex.Store({
   state: {
-    records: []
+    records: [],
+    profile:[],
   },
   mutations: {
     increment(state, n) {
-      state.records = n
+      state.records = n;
+    },
+    setProfile(state,profile){
+      state.profile=profile;
     }
 
   } 
   
 })
-
-
-new Vue({
-  router,
-  vuetify,
-  store,
-  
-  render: h => h(App)
-}).$mount('#app')
+let app;
+firebase.auth().onAuthStateChanged(()=>{
+  if(!app)
+    app=new Vue({
+      router,
+      vuetify,
+      store,
+      
+      render: h => h(App)
+    }).$mount('#app')
+    
+})

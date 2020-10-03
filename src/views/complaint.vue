@@ -1,6 +1,9 @@
 
 <template>
-<v-container id="cont">
+<v-container 
+class="pa-0 "
+>
+
   <tiptaap/>
 
   <div id="side-toolbar"  
@@ -141,44 +144,6 @@ export default {
   right:0;
 }
 
-.v-data-table__wrapper {
-    overflow-x: hidden;
-    overflow-y: hidden;
-    width: 1100px;
-}
-
-.tiptap-vuetify-editor__content {
-  font-size: 20px;
-  margin: auto;
-}
- .tiptap-vuetify-editor__content .ProseMirror p{
-    margin-bottom:0px!important;
-    margin-top: 0px!important;
-   
-    line-height: 1;
-}
-.tiptap-vuetify-editor__content,tbody tr td{
-  max-width: 1100px;
-}
-
-.ProseMirror hr{
-  margin-bottom: 5px!important;
-}
-
-.page-footer {
-  display: none;
-  position: fixed;
-  height: 60px;
-  bottom: 0;
-  width: 100%;
-  border-top: 3px solid green; /* for demo */
-
-}
-
-
-tr:hover{
-  background: none!important;
-}
 
 @media print{
 header,.row{

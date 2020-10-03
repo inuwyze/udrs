@@ -1,6 +1,9 @@
 
 <template>
-<v-container id="cont">
+<v-container 
+class="pa-0 ma-0 "
+>
+  
       <div class="page-footer">
     I'm The Footer
   </div>
@@ -9,16 +12,21 @@
       <tr>
         <td>
           <!--place holder for the fixed-position header-->
-          <div class="page-header-space"></div>
+          <div class="page-header-space">
+            gogo anime
+          </div>
         </td>
       </tr>
     </thead>
 
 
     <tbody
+    class="tertiary"
+
     >
       <tr>
-        <td>
+        <td
+        >
             <div>
               <v-row >
 
@@ -42,7 +50,8 @@
       </tr>
     </tbody>
 
-    <tfoot>
+    <tfoot
+    class="tertiary">
       <tr>
         <td>
           <!--place holder for the fixed-position footer-->
@@ -60,6 +69,7 @@
 import { TiptapVuetify, Heading, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from 'tiptap-vuetify'
 import { bus } from '../main'
 import { debounce } from 'vue-debounce'
+import firebase from 'firebase'
 export default {
   // specify TiptapVuetify component in "components"
   components: { TiptapVuetify },
@@ -89,18 +99,18 @@ export default {
       HardBreak
     ],
      form:{
-      doctor:'dr mundo',
+      doctor:'',
       patient:'',
       createdAt:'',
       complaint: `
      
       <h3>Complaints</h3>
       <hr>
-     <br>
+      <br><br><br>
+     <br><br><br><br><br>
       <h3>present History</h3>
       <hr>
-        <br>
-
+        <br><br><br><br><br>
       <h3>Prescription</h3>
       <hr>
       <br>`
@@ -109,6 +119,9 @@ export default {
     // starting editor's content
      
   }),
+  created(){
+    this.form.doctor=firebase.auth().currentUser.displayName;
+  },
   watch:{
 
     form:{
@@ -134,8 +147,13 @@ export default {
  html::-webkit-scrollbar {
   display: none!important;
 }
+/* .v-data-table>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table>.v-data-table__wrapper>table>thead>tr>td{
+  display: none;
+} */
 
-
+thead{
+  display: none;
+}
 
 /* transition */
 .appear-enter-active, .appear-leave-active {
@@ -145,19 +163,12 @@ export default {
   /* opacity: 0; */
   transform: translateX(100px);
 }
-#side-toolbar{
-  position: fixed;
-  /* pointer-events: none; */
-  height: 300px;
-  width: 100px;
-  bottom:0px;
-  right:0;
-}
+
 
 .v-data-table__wrapper {
     overflow-x: hidden;
     overflow-y: hidden;
-    width: 1100px;
+    
 }
 
 .tiptap-vuetify-editor__content {
@@ -170,9 +181,6 @@ export default {
    
     line-height: 1;
 }
-.tiptap-vuetify-editor__content,tbody tr td{
-  max-width: 1100px;
-}
 
 .ProseMirror hr{
   margin-bottom: 5px!important;
@@ -184,6 +192,7 @@ export default {
   height: 60px;
   bottom: 0;
   width: 100%;
+  background-color: greenyellow;
   border-top: 3px solid green; /* for demo */
 
 }
@@ -195,13 +204,14 @@ tr:hover{
 
 
 @media print{
-header,.row{
+/* header,.row{
     display: none!important;
-}
+} */
 
-main{
+/* main{
   padding: 0!important;
-}
+  margin: 0!important;
+} */
 
 
 .tiptap-vuetify-editor__content {
@@ -217,15 +227,14 @@ button{
 }
 body{
     /* border:1px solid red; */
-    /* background: green; */
-    margin:0;
-    padding: 0;
+    background: green;
+    margin:0!important;
+    padding: 0!important;
     
 }
 .page-header-space,
 .page-footer-space {
   height: 70px;
-
 }
   .page-header,.page-footer {
   z-index: 2;

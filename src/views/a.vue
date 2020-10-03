@@ -1,7 +1,6 @@
 <template>
   <div>
-    ola mf
- 
+  
   </div>
 </template>
 
